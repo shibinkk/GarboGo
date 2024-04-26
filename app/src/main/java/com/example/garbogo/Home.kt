@@ -15,8 +15,14 @@ class Home : AppCompatActivity() {
         val button3 = findViewById<Button>(R.id.button490)
         val button4 = findViewById<Button>(R.id.button990)
         val button5 = findViewById<Button>(R.id.button970)
-
+        val combtn  = findViewById<Button>(R.id.communitybtn)
         // Set OnClickListener for Button 2
+
+        combtn.setOnClickListener{
+            val intent = Intent(this, Ecom::class.java)
+            startActivity(intent)
+        }
+
         button2.setOnClickListener {
             // Start MapActivity when Button 2 is clicked
             val intent = Intent(this, Map::class.java)

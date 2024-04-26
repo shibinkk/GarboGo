@@ -10,9 +10,9 @@ class Login : AppCompatActivity() {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_login)
 
-        val loginUsr: Button = findViewById(R.id.loginUsr)
+        val loginUsr: Button = findViewById(R.id.loginSib)
         val loginAuth: Button = findViewById(R.id.loginAuth)
-
+//
         loginUsr.setOnClickListener {
             // Navigate to MainActivity as user
             val intent = Intent(this@Login, MainActivity::class.java)

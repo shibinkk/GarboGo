@@ -1,3 +1,4 @@
+
 package com.example.garbogo
 
 import android.Manifest
@@ -6,6 +7,8 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -44,7 +47,6 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
         setContentView(R.layout.activity_map)
 
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
-
         // Initialize the map fragment
         val mapFragment = SupportMapFragment.newInstance()
         supportFragmentManager.beginTransaction()
@@ -53,7 +55,16 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
 
         // Set callback for when the map is ready
         mapFragment.getMapAsync(this)
+
+        // Initialize views
+        val btnFindNearestBin: Button = findViewById(R.id.btnFindNearestBin)
+
+        // Set click listener for the button
+        btnFindNearestBin.setOnClickListener {
+            findNearestBinAndNavigate()
+        }
     }
+
 
     override fun onMapReady(googleMap: GoogleMap) {
         map = googleMap
@@ -83,7 +94,11 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
             }
 
         val wasteBinLocations = listOf(
-            LatLng(9.8519947, 76.9394600)
+            LatLng(9.8519947, 76.9394600),
+            LatLng(9.8520879, 76.9447557),
+            LatLng(9.8523852, 76.9488417),
+            LatLng(9.8587962, 76.9471334)
+
         )
 
         wasteBinMarkers = ArrayList()
@@ -145,6 +160,43 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         })
+    }
+
+    private fun findNearestBinAndNavigate() {
+        // Check if user location is available
+        if (::userLatLng.isInitialized) {
+            // Find the nearest waste bin
+            var nearestBin: LatLng? = null
+            var minDistance = Double.MAX_VALUE
+
+            for (marker in wasteBinMarkers) {
+                val binLocation = marker.position
+                val distance = calculateDistance(userLatLng, binLocation)
+                if (distance < minDistance) {
+                    minDistance = distance
+                    nearestBin = binLocation
+                }
+            }
+
+            // If a nearest bin is found, navigate to it
+            nearestBin?.let {
+                fetchAndDrawRoute(userLatLng, it)
+            }
+        } else {
+            // Handle the case when user location is not available
+            Toast.makeText(this, "User location not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Function to calculate distance between two LatLng points
+    private fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Double {
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            latLng1.latitude, latLng1.longitude,
+            latLng2.latitude, latLng2.longitude,
+            results
+        )
+        return results[0].toDouble()
     }
 }
 

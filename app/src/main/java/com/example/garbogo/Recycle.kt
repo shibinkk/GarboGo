@@ -1,3 +1,4 @@
+
 package com.example.garbogo
 
 import android.Manifest
@@ -6,6 +7,8 @@ import android.graphics.Color
 import android.location.Location
 import android.os.Bundle
 import android.util.Log
+import android.widget.Button
+import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import androidx.core.app.ActivityCompat
 import com.google.android.gms.location.FusedLocationProviderClient
@@ -43,6 +46,7 @@ class Recycle : AppCompatActivity(), OnMapReadyCallback {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_recycle)
 
+        // Initialize fusedLocationClient
         fusedLocationClient = LocationServices.getFusedLocationProviderClient(this)
 
         // Initialize the map fragment
@@ -53,6 +57,13 @@ class Recycle : AppCompatActivity(), OnMapReadyCallback {
 
         // Set callback for when the map is ready
         mapFragment.getMapAsync(this)
+
+        val btnFindNearestRecCtr: Button = findViewById(R.id.btnFindNearestRecCtr)
+
+        // Set click listener for the button
+        btnFindNearestRecCtr.setOnClickListener {
+            findNearestRecyclingCenterAndNavigate()
+        }
     }
 
     override fun onMapReady(googleMap: GoogleMap) {
@@ -146,6 +157,43 @@ class Recycle : AppCompatActivity(), OnMapReadyCallback {
                 }
             }
         })
+    }
+
+    private fun findNearestRecyclingCenterAndNavigate() {
+        // Check if user location is available
+        if (::userLatLng.isInitialized) {
+            // Find the nearest recycling center
+            var nearestRecyclingCenter: LatLng? = null
+            var minDistance = Double.MAX_VALUE
+
+            for (marker in recycleCenterMarkers) {
+                val centerLocation = marker.position
+                val distance = calculateDistance(userLatLng, centerLocation)
+                if (distance < minDistance) {
+                    minDistance = distance
+                    nearestRecyclingCenter = centerLocation
+                }
+            }
+
+            // If a nearest recycling center is found, navigate to it
+            nearestRecyclingCenter?.let {
+                fetchAndDrawRoute(userLatLng, it)
+            }
+        } else {
+            // Handle the case when user location is not available
+            Toast.makeText(this, "User location not available", Toast.LENGTH_SHORT).show()
+        }
+    }
+
+    // Function to calculate distance between two LatLng points
+    private fun calculateDistance(latLng1: LatLng, latLng2: LatLng): Double {
+        val results = FloatArray(1)
+        Location.distanceBetween(
+            latLng1.latitude, latLng1.longitude,
+            latLng2.latitude, latLng2.longitude,
+            results
+        )
+        return results[0].toDouble()
     }
 }
 

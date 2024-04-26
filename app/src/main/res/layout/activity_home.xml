@@ -43,7 +43,7 @@
 
     <LinearLayout
         android:layout_width="match_parent"
-        android:layout_height="182dp"
+        android:layout_height="167dp"
         android:background="@drawable/bottom_curve"
         android:gravity="center">
 
@@ -272,13 +272,18 @@
         </LinearLayout>
     </LinearLayout>
 
+    <Button
+        android:id="@+id/communitybtn"
+        android:layout_width="361dp"
+        android:textSize="18sp"
+        android:layout_marginLeft="23dp"
+        app:cornerRadius="10dp"
+        android:layout_height="67dp"
+        android:backgroundTint="@color/grey"
+        android:text="Community" />
 
 
-
-
-
-
-<!--    <Button-->
+    <!--    <Button-->
 <!--        android:id="@+id/button"-->
 <!--        android:layout_width="120dp"-->
 <!--        android:layout_height="150dp"-->

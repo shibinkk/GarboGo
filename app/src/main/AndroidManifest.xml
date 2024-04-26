@@ -26,6 +26,15 @@
         android:theme="@style/Theme.Garbogo"
         tools:targetApi="31">
         <activity
+            android:name=".PostAd"
+            android:exported="false" />
+        <activity
+            android:name=".Ecom"
+            android:exported="false" />
+        <activity
+            android:name=".ExchangeHome"
+            android:exported="false" />
+        <activity
             android:name=".AuthIllegal"
             android:exported="false" />
         <activity
@@ -53,10 +62,10 @@
             android:name=".Pickup"
             android:exported="false" />
         <activity
-            android:name=".Home"
+            android:name=".Login"
             android:exported="false" />
         <activity
-            android:name=".Login"
+            android:name=".Home"
             android:exported="true">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
