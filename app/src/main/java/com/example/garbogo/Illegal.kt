@@ -140,6 +140,8 @@ class Illegal : AppCompatActivity() {
         bitmap.compress(Bitmap.CompressFormat.JPEG, 100, baos)
         val imageData = baos.toByteArray()
 
+        saveImageLocally(bitmap)
+
         // Add size and type fields to the data
         val data = hashMapOf(
             "size" to size,
@@ -178,6 +180,15 @@ class Illegal : AppCompatActivity() {
                 Log.e("UPLOAD_IMAGE", "Error uploading image", e)
             }
 
+    }
+
+    private fun saveImageLocally(bitmap: Bitmap) {
+        // Save the image to the device's external storage directory
+        val fileName = "GarbageImage_${System.currentTimeMillis()}.jpg"
+        val resolver = contentResolver
+
+        // Save bitmap to MediaStore
+        MediaStore.Images.Media.insertImage(resolver, bitmap, fileName, "Garbage Image")
     }
 
     private fun navigateToHomeActivity() {

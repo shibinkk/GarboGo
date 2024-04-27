@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import okhttp3.*
 import java.io.IOException
 
@@ -142,23 +143,44 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
             override fun onResponse(call: Call, response: Response) {
                 response.body?.let { responseBody ->
                     val json = responseBody.string()
-                    val route = gson.fromJson(json, Route::class.java)
+                    Log.d("MapActivity", "JSON Response: $json")
 
-                    val polylineOptions = PolylineOptions()
-                    route.features[0].geometry.coordinates.forEach { coord ->
-                        val latLng = LatLng(coord[1], coord[0])
-                        polylineOptions.add(latLng)
+                    val responseCode = response.code
+                    val responseMessage = response.message // Assigning response message directly to a variable
+
+                    if (!response.isSuccessful) {
+                        Log.e("MapActivity", "Error response: $responseCode - $responseMessage")
+                        // Handle error response here, such as showing an error message to the user
+                        return
                     }
 
-                    polylineOptions.color(Color.BLUE)
-                        .width(10f)
+                    try {
+                        val route = gson.fromJson(json, Route::class.java)
 
-                    runOnUiThread {
-                        pathPolyline?.remove()
-                        pathPolyline = map.addPolyline(polylineOptions)
+                        val polylineOptions = PolylineOptions()
+                        route.features[0].geometry.coordinates.forEach { coord ->
+                            val latLng = LatLng(coord[1], coord[0])
+                            polylineOptions.add(latLng)
+                        }
+
+                        polylineOptions.color(Color.BLUE)
+                            .width(10f)
+
+                        runOnUiThread {
+                            pathPolyline?.remove()
+                            pathPolyline = map.addPolyline(polylineOptions)
+                        }
+                    } catch (e: JsonSyntaxException) {
+                        Log.e("MapActivity", "Error parsing JSON: ${e.message}")
                     }
                 }
             }
+
+
+
+
+
+
         })
     }
 
@@ -199,6 +221,7 @@ class Map : AppCompatActivity(), OnMapReadyCallback {
         return results[0].toDouble()
     }
 }
+
 
 private data class Route(
     val features: List<Feature>

@@ -24,6 +24,7 @@ import com.google.android.gms.maps.model.MarkerOptions
 import com.google.android.gms.maps.model.Polyline
 import com.google.android.gms.maps.model.PolylineOptions
 import com.google.gson.Gson
+import com.google.gson.JsonSyntaxException
 import okhttp3.*
 import java.io.IOException
 
@@ -139,23 +140,39 @@ class Recycle : AppCompatActivity(), OnMapReadyCallback {
             override fun onResponse(call: Call, response: Response) {
                 response.body?.let { responseBody ->
                     val json = responseBody.string()
-                    val routeResponse = gson.fromJson(json, RouteResponse::class.java)
+                    Log.d("RecycleActivity", "JSON Response: $json")
 
-                    val polylineOptions = PolylineOptions()
-                    routeResponse.features[0].geometry.coordinates.forEach { coord ->
-                        val latLng = LatLng(coord[1], coord[0])
-                        polylineOptions.add(latLng)
+                    val responseCode = response.code
+                    val responseMessage = response.message // Assigning response message directly to a variable
+
+                    if (!response.isSuccessful) {
+                        Log.e("RecycleActivity", "Error response: $responseCode - $responseMessage")
+                        // Handle error response here, such as showing an error message to the user
+                        return
                     }
 
-                    polylineOptions.color(Color.BLUE)
-                        .width(10f)
+                    try {
+                        val routeResponse = gson.fromJson(json, RouteResponse::class.java)
 
-                    runOnUiThread {
-                        pathPolyline?.remove()
-                        pathPolyline = map.addPolyline(polylineOptions)
+                        val polylineOptions = PolylineOptions()
+                        routeResponse.features[0].geometry.coordinates.forEach { coord ->
+                            val latLng = LatLng(coord[1], coord[0])
+                            polylineOptions.add(latLng)
+                        }
+
+                        polylineOptions.color(Color.BLUE)
+                            .width(10f)
+
+                        runOnUiThread {
+                            pathPolyline?.remove()
+                            pathPolyline = map.addPolyline(polylineOptions)
+                        }
+                    } catch (e: JsonSyntaxException) {
+                        Log.e("RecycleActivity", "Error parsing JSON: ${e.message}")
                     }
                 }
             }
+
         })
     }
 
